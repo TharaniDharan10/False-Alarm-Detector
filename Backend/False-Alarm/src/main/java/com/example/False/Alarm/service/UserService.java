@@ -49,6 +49,22 @@ public class UserService implements UserDetailsService {
         return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
 
+    public ResponseEntity<?> addAdmin(String path, AddUserRequest addUserRequest) throws IOException {
+        MultipartFile image = addUserRequest.getImage();
+        String response = uploadImage(path,image);
+        if(response.equals("The uploaded file format is not supported")){
+            return new ResponseEntity<>("The uploaded file format is not supported", HttpStatus.BAD_REQUEST);
+        }
+
+        User admin = UserMapper.mapToUser(addUserRequest);
+        admin.setProfilePicUrl(response);
+        admin.setUserType(UserType.ADMIN);
+        admin.setAuthorities("ADMIN");
+        userRepository.save(admin);
+        log.info("Admin added by admin successfully");
+        return new ResponseEntity<>(admin, HttpStatus.CREATED);
+    }
+
     private String uploadImage(String path, MultipartFile image) throws IOException {
         String fileName = image.getOriginalFilename();
 
@@ -73,13 +89,7 @@ public class UserService implements UserDetailsService {
         return fileNameWhenStored;
     }
 
-    public User addAdmin(@Valid AddUserRequest addUserRequest){
-        User user = UserMapper.mapToUser(addUserRequest);
-        user.setUserType(UserType.ADMIN);
-        user.setAuthorities("ADMIN");  
 
-        return userRepository.save(user);
-    }
 
     public List<User> searchByUsername(String query) {
         return userRepository.findByUsernameContainingIgnoreCase(query);

@@ -40,9 +40,9 @@ public class UserController {
 
     @CrossOrigin(origins = "*")
     @PostMapping("/admin")
-    public ResponseEntity<User> addAdmin(@RequestBody @Valid AddUserRequest addUserRequest){
-        User addedUser = userService.addAdmin(addUserRequest);
-        return new ResponseEntity<>(addedUser, HttpStatus.CREATED);
+    public ResponseEntity<?> addAdmin(@ModelAttribute @Valid AddUserRequest addUserRequest) throws IOException {
+        ResponseEntity<?> response = userService.addAdmin(path,addUserRequest);
+        return response;
 
     }
 
