@@ -106,6 +106,7 @@ public class UserService implements UserDetailsService {
     }
 
     public ResponseEntity<?> login(LoginRequest request) {
+
         User user = userRepository.findByUserId(request.getUserId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
 

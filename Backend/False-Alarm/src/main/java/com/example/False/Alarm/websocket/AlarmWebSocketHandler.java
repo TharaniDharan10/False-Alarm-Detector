@@ -1,5 +1,4 @@
 package com.example.False.Alarm.websocket;
-
 import java.util.List;
 import java.time.LocalDateTime;
 import com.example.False.Alarm.service.ChatMonitorService;
@@ -12,14 +11,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.socket.CloseStatus;
 
-public class AlarmWebSocketHandler extends TextWebSocketHandler {
+import java.util.List;
 
     private static final Logger logger = LoggerFactory.getLogger(AlarmWebSocketHandler.class);
     private final ChatMonitorService chatMonitorService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public AlarmWebSocketHandler(ChatMonitorService chatMonitorService) {
+    public AlarmWebSocketHandler(ChatMonitorService chatMonitorService, UserService userService) {
         this.chatMonitorService = chatMonitorService;
+        this.userService = userService;
     }
 
     @Override
@@ -29,6 +29,7 @@ public class AlarmWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+
         try {
             WebSocketMessage wsMessage = objectMapper.readValue(message.getPayload(), WebSocketMessage.class);
             String userId = wsMessage.getUserId();
@@ -46,11 +47,6 @@ public class AlarmWebSocketHandler extends TextWebSocketHandler {
             for (String alert : alerts) {
                 session.sendMessage(new TextMessage(alert));
             }
-
-            logger.info("Message received from {}: {}", username, messageContent);
-        } catch (Exception e) {
-            logger.error("Error processing WebSocket message: {}", e.getMessage(), e);
-            session.sendMessage(new TextMessage("Error processing message. Please try again."));
         }
     }
 
